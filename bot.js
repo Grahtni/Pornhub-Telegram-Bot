@@ -1,6 +1,7 @@
 require("dotenv").config();
 const { Bot, InputFile } = require("grammy");
 const pornhub = require("@justalk/pornhub-api");
+const regex = /https?:\/\/(www\.)?pornhub\.(com|org)\/[a-zA-Z0-9_\.]+\/?/;
 
 // Bot
 
@@ -30,21 +31,34 @@ bot.command("help", async (ctx) => {
 // Messages
 
 bot.on("msg", async (ctx) => {
-  try {
-    const url = ctx.msg.text;
-    console.log("Query:", url, "by", ctx.from.id);
-    const video = await pornhub.page(url, ["title", "download_urls"]);
-    console.log(video);
-    console.log(video.title);
-    await ctx.reply(video.title, { reply_to_message_id: ctx.msg.message_id });
-    await ctx.reply(video.download_urls["480P"]);
-    await ctx.replyWithDocument(video.download_urls["480P"]);
-  } catch (error) {
-    console.error(error);
-    await ctx.reply(`*An error occured.*`, {
+  if (!regex.test(ctx.msg.text)) {
+    await ctx.reply("*Send a Pornhub link.*", {
       parse_mode: "Markdown",
       reply_to_message_id: ctx.msg.message_id,
     });
+  } else {
+    const status = await ctx.reply("*Downloading*", { parse_mode: "Markdown" });
+    setTimeout(async () => {
+      await ctx.api.deleteMessage(ctx.chat.id, status.message_id);
+    }, 5000);
+    try {
+      const url = ctx.msg.text;
+      console.log("Query:", url, "by", ctx.from.id);
+      const video = await pornhub.page(url, ["title", "download_urls"]);
+      console.log(video);
+      console.log(video.title);
+      await ctx.reply(video.title, { reply_to_message_id: ctx.msg.message_id });
+      await ctx.reply(video.download_urls["480P"]);
+    } catch (error) {
+      console.error(error);
+      await ctx.reply(
+        `*An error occured.*\n_Are you sure the link is correct?`,
+        {
+          parse_mode: "Markdown",
+          reply_to_message_id: ctx.msg.message_id,
+        }
+      );
+    }
   }
 });
 
