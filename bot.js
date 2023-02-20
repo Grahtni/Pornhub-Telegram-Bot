@@ -32,7 +32,7 @@ bot.command("help", async (ctx) => {
 
 bot.on("msg", async (ctx) => {
   if (!regex.test(ctx.msg.text)) {
-    await ctx.reply("*Send a Pornhub link.*", {
+    await ctx.reply("*Send a Pornhub video link.*", {
       parse_mode: "Markdown",
       reply_to_message_id: ctx.msg.message_id,
     });
@@ -45,14 +45,12 @@ bot.on("msg", async (ctx) => {
       const url = ctx.msg.text;
       console.log("Query:", url, "by", ctx.from.id);
       const video = await pornhub.page(url, ["title", "download_urls"]);
-      console.log(video);
-      console.log(video.title);
       await ctx.reply(video.title, { reply_to_message_id: ctx.msg.message_id });
       await ctx.reply(video.download_urls["480P"]);
     } catch (error) {
       console.error(error);
       await ctx.reply(
-        `*An error occured.*\n_Are you sure the link is correct?`,
+        `*An error occured.*\n_Are you sure the link is correct?_`,
         {
           parse_mode: "Markdown",
           reply_to_message_id: ctx.msg.message_id,
