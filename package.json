@@ -2,6 +2,7 @@
   "dependencies": {
     "@justalk/pornhub-api": "^3.5.0",
     "dotenv": "^16.0.3",
-    "grammy": "^1.13.1"
+    "grammy": "^1.13.1",
+    "mysql2": "^3.1.2"
   }
 }
